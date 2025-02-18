@@ -7,6 +7,17 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#define MIN_BETA -90
+#define MAX_BETA 90
+
+float alpha = 45.0f;
+float beta = 45.0f;
+float radius = 5.0f;
+
+float px = 5.0f, py = 5.0f, pz = 5.0f; // initial camera Position
+float lx = 0.0f, ly = 0.0f, lz = 0.0f; //camera lookAt
+
+
 void changeSize(int w, int h) {
 
 	// Prevent a divide by zero, when window is too short
@@ -34,9 +45,51 @@ void changeSize(int w, int h) {
 
 
 void drawCylinder(float radius, float height, int slices) {
+	float delta = 2 * M_PI / slices;
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glBegin(GL_TRIANGLES);
+    
+    for (int i = 0; i < slices; ++i) {
+        glVertex3f(0, -height / 2, 0);
+        glVertex3f(radius * sin((i + 1) * delta), -height / 2, radius * cos((i + 1) * delta));
+        glVertex3f(radius * sin(i * delta), -height / 2, radius * cos(i * delta));
+    }
+    
+    for (int i = 0; i < slices; ++i) {
+        glVertex3f(0, height / 2, 0);
+        glVertex3f(radius * sin(i * delta), height / 2, radius * cos(i * delta));
+        glVertex3f(radius * sin((i + 1) * delta), height / 2, radius * cos((i + 1) * delta));
+    }
+    
+    for (int i = 0; i < slices; ++i) {
+        glVertex3f(radius * sin((i + 1) * delta), height / 2, radius * cos((i + 1) * delta));
+        glVertex3f(radius * sin(i * delta), height / 2, radius * cos(i * delta));
+        glVertex3f(radius * sin(i * delta), -height / 2, radius * cos(i * delta));
 
-// put code to draw cylinder in here
+        glVertex3f(radius * sin((i + 1) * delta), -height / 2, radius * cos((i + 1) * delta));
+        glVertex3f(radius * sin((i + 1) * delta), height / 2, radius * cos((i + 1) * delta));
+        glVertex3f(radius * sin(i * delta), -height / 2, radius * cos(i * delta));
+    }
+    
+    glEnd();
 
+}
+
+void axis(void){
+	glBegin(GL_LINES);
+		// X axis in red
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(-100.0f, 0.0f, 0.0f);
+		glVertex3f( 100.0f, 0.0f, 0.0f);
+		// Y Axis in Green
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(0.0f, -100.0f, 0.0f);
+		glVertex3f(0.0f, 100.0f, 0.0f);
+		// Z Axis in Blue
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(0.0f, 0.0f, -100.0f);
+		glVertex3f(0.0f, 0.0f, 100.0f);
+	glEnd();
 }
 
 
@@ -47,10 +100,18 @@ void renderScene(void) {
 
 	// set the camera
 	glLoadIdentity();
-	gluLookAt(5.0,5.0,5.0, 
-		      0.0,0.0,0.0,
+
+	px = radius * cos(beta) * sin(alpha);
+	py = radius * sin(beta);
+	pz = radius * cos(beta) * cos (alpha);
+
+	// camera mode for the assigment is just the explorer mode camera
+	gluLookAt(px,py,pz, 
+		      lx, ly, lz,
 			  0.0f,1.0f,0.0f);
 
+	axis();
+	glColor3f(1.0f, 1.0f, 1.0f);
 	drawCylinder(1,2,10);
 
 	// End of frame
@@ -59,16 +120,48 @@ void renderScene(void) {
 
 
 void processKeys(unsigned char c, int xx, int yy) {
+    float moveSpeed = 1.0f;
 
-// put code to process regular keys in here
+    switch (c) {
+        case 'w':
+            radius -= moveSpeed;
+            if (radius < 1.0f) radius = 1.0f; 
+            break;
+        case 's': 
+            radius += moveSpeed;
+            break;
+        case 'a': 
+            alpha -= 0.1f;
+            break;
+        case 'd': 
+            alpha += 0.1f;
+            break;
+    }
+	glutPostRedisplay();
 
 }
 
-
 void processSpecialKeys(int key, int xx, int yy) {
+    float lookSpeed = 0.1f; // Velocidade de rotação
 
-// put code to process special keys in here
+    switch (key) {
+        case GLUT_KEY_UP: // Olhar para cima
+            beta += lookSpeed;
+            if (beta > MAX_BETA) beta = MAX_BETA;
+            break;
+        case GLUT_KEY_DOWN: // Olhar para baixo
+			beta -= lookSpeed;
+            if (beta < MIN_BETA) beta = MIN_BETA;
+            break;
+        case GLUT_KEY_LEFT: // Olhar para a esquerda
+            alpha -= lookSpeed;
+            break;
+        case GLUT_KEY_RIGHT: // Olhar para a direita
+            alpha += lookSpeed;
+            break;
+    }
 
+    glutPostRedisplay();
 }
 
 
