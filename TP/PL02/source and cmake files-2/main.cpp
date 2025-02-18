@@ -7,6 +7,7 @@
 #include <math.h>
 
 
+
 float rotateY = 0.0f; // horizontal rotation
 float rotateX = 0.0f; // vertical rotation
 
