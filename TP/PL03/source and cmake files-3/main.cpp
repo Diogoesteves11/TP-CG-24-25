@@ -142,21 +142,21 @@ void processKeys(unsigned char c, int xx, int yy) {
 }
 
 void processSpecialKeys(int key, int xx, int yy) {
-    float lookSpeed = 0.1f; // Velocidade de rotação
+    float lookSpeed = 0.1f;
 
     switch (key) {
-        case GLUT_KEY_UP: // Olhar para cima
+        case GLUT_KEY_UP: 
             beta += lookSpeed;
             if (beta > MAX_BETA) beta = MAX_BETA;
             break;
-        case GLUT_KEY_DOWN: // Olhar para baixo
+        case GLUT_KEY_DOWN:
 			beta -= lookSpeed;
             if (beta < MIN_BETA) beta = MIN_BETA;
             break;
-        case GLUT_KEY_LEFT: // Olhar para a esquerda
+        case GLUT_KEY_LEFT:
             alpha -= lookSpeed;
             break;
-        case GLUT_KEY_RIGHT: // Olhar para a direita
+        case GLUT_KEY_RIGHT:
             alpha += lookSpeed;
             break;
     }
