@@ -112,7 +112,7 @@ void renderScene(void) {
 
 	axis();
 	glColor3f(1.0f, 1.0f, 1.0f);
-	drawCylinder(1,2,10);
+	drawCylinder(1,2,100);
 
 	// End of frame
 	glutSwapBuffers();
