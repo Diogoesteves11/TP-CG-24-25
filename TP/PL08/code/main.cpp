@@ -19,6 +19,24 @@ int alpha = 0, beta = 0, r = 5;
 // Points that make up the loop for catmull-rom interpolation
 float p[POINT_COUNT][3] = {{-1,-1,0},{-1,1,0},{1,1,0},{0,0,0},{1,-1,0}};
 
+
+void axis(void){
+	glBegin(GL_LINES);
+		// X axis in red
+		glColor3f(1.0f, 0.0f, 0.0f);
+		glVertex3f(-1.0f, 0.0f, 0.0f);
+		glVertex3f( 1.0f, 0.0f, 0.0f);
+		// Y Axis in Green
+		glColor3f(0.0f, 1.0f, 0.0f);
+		glVertex3f(0.0f, -1.0f, 0.0f);
+		glVertex3f(0.0f, 1.0f, 0.0f);
+		// Z Axis in Blue
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex3f(0.0f, 0.0f, -1.0f);
+		glVertex3f(0.0f, 0.0f, 1.0f);
+	glEnd();
+}
+
 void buildRotMatrix(float *x, float *y, float *z, float *m) {
 
 	m[0] = x[0]; m[1] = x[1]; m[2] = x[2]; m[3] = 0;
@@ -139,7 +157,8 @@ void renderCatmullRomCurve() {
     glColor3f(1, 1, 1);
     glBegin(GL_LINE_STRIP);
     float pos[3], deriv[3];
-    for (float t = 0; t < 1; t += 0.01f) {
+	float npoints = 100;
+    for (float t = 0; t < npoints; t += 0.01f) {
         getGlobalCatmullRomPoint(t, pos, deriv);
         glVertex3f(pos[0], pos[1], pos[2]);
     }
@@ -150,6 +169,10 @@ void renderCatmullRomCurve() {
 void renderScene(void) {
 
 	static float t = 0;
+	static float Yi[3] = {0,1,0};
+	float Xi[3], Zi[3];
+	float m[16];
+	float pos[3];
 
 	glClearColor(0.0f,0.0f,0.0f,0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -161,13 +184,31 @@ void renderScene(void) {
 
 	renderCatmullRomCurve();
 
-	// apply transformations here
-	// ...
+	// Xi
+	getGlobalCatmullRomPoint(t,pos,Xi);
+	// Zi
+	cross(Xi,Yi,Zi);
+	// Yi
+	cross(Zi,Xi,Yi);
+	
+	normalize(Xi);
+	normalize(Yi);
+	normalize(Zi);
+	
+	//construir matriz de rotação
+	buildRotMatrix(Xi,Yi,Zi,m);
+	//aplicar transformações
+
+	glTranslatef(pos[0],pos[1],pos[2]);
+
+	glMultMatrixf(m); // aplicar rotação
+	
 	glutWireTeapot(0.1);
+	axis();
 
 
 	glutSwapBuffers();
-	t+=0.00001;
+	t+=0.001f;
 }
 
 
